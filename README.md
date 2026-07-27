@@ -1,6 +1,9 @@
 # DIFI-TX-System
 Hardware-Software co-design of a VITA 49.2 / DIFI compliant Transmit (TX) system on Zynq UltraScale+ MPSoC
 
+<p align="center">
+  <img src="https://github.com/Matan1809Moshe/DIFI-TX-System/issues/1#issue-4986859890" alt="תיאור התמונה" width="700">
+</p>
 ![Platform](https://img.shields.io/badge/Platform-Xilinx%20Zynq%20UltraScale%2B-blue)
 ![Standard](https://img.shields.io/badge/Standard-VITA%2049.2%20%7C%20DIFI-orange)
 ![Institution](https://img.shields.io/badge/Institution-Tel%20Aviv%20University-green)
