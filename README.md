@@ -36,7 +36,7 @@ The system is deployed on a **Xilinx Zynq UltraScale+ MPSoC** platform (utilizin
 
 * Runs an embedded Linux operating system (PetaLinux).
 
-*Manages the network stack, system initialization, and high-level configuration of transmission         parameters via memory-mapped **AXI4-Lite** registers.
+* Manages the network stack, system initialization, and high-level configuration of transmission         parameters via memory-mapped **AXI4-Lite** registers.
 
 2. **Programmable Logic (PL - Hardware Data Path):**
 
