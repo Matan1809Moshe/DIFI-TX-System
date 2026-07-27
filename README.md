@@ -5,6 +5,8 @@ Hardware-Software co-design of a VITA 49.2 / DIFI compliant Transmit (TX) system
   <img src="https://github.com/user-attachments/assets/7dea17a6-9ae5-45d5-a50a-2e6364eca95b" alt="Zynq UltraScale+ Logo" width="100">
   &nbsp;&nbsp;
   <img src="https://github.com/user-attachments/assets/293f2d76-f036-45d1-af16-df0e450071f5" alt="Image" width="100">
+   &nbsp;&nbsp;
+  <img src="https://github.com/user-attachments/assets/fd20ac97-91b3-467b-b187-27039ead6434" alt="TAU_logo" width="100">
 </p>
 
 ![Platform](https://img.shields.io/badge/Platform-Xilinx%20Zynq%20UltraScale%2B-blue)
