@@ -32,11 +32,14 @@ The primary objective is to develop a robust hardware-software co-design archite
 
 The system is deployed on a **Xilinx Zynq UltraScale+ MPSoC** platform (utilizing the iW-RainboW-G30M development board) and is divided into two main domains:
 
-1. **Processing System (PS):** 
-   - Runs an embedded Linux operating system (PetaLinux).
-   - Manages the network stack, system initialization, and high-level configuration of transmission         parameters via memory-mapped **AXI4-Lite** registers.
+1. **Processing System (PS):**
 
-2. **Programmable Logic (PL - Hardware Data Path):** 
+* Runs an embedded Linux operating system (PetaLinux).
+
+*Manages the network stack, system initialization, and high-level configuration of transmission         parameters via memory-mapped **AXI4-Lite** registers.
+
+2. **Programmable Logic (PL - Hardware Data Path):**
+
 * **DDS Compiler:** Generates synthetic digital baseband quadrature (IQ) samples at a 100 MHz clock
   domain.
 
