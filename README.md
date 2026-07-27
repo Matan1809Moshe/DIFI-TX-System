@@ -2,13 +2,13 @@
 Hardware-Software co-design of a VITA 49.2 / DIFI compliant Transmit (TX) system on Zynq UltraScale+ MPSoC
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/7dea17a6-9ae5-45d5-a50a-2e6364eca95b" alt="Zynq UltraScale+_Logo" width="120">
+  <img src="https://github.com/user-attachments/assets/7dea17a6-9ae5-45d5-a50a-2e6364eca95b" alt="Zynq UltraScale+_Logo" width="150">
   &nbsp;&nbsp;
-  <img src="https://github.com/user-attachments/assets/293f2d76-f036-45d1-af16-df0e450071f5" alt="SystemVerilog_logo" width="120">
+  <img src="https://github.com/user-attachments/assets/293f2d76-f036-45d1-af16-df0e450071f5" alt="SystemVerilog_logo" width="150">
   &nbsp;&nbsp;
-  <img src="https://github.com/user-attachments/assets/fd20ac97-91b3-467b-b187-27039ead6434" alt="TAU_logo" width="120">
+  <img src="https://github.com/user-attachments/assets/fd20ac97-91b3-467b-b187-27039ead6434" alt="TAU_logo" width="150">
   &nbsp;&nbsp;
-  <img src="https://github.com/user-attachments/assets/772c26f8-e691-4229-9b25-75eba6462247" alt="DIFI_logo" width="120">
+  <img src="https://github.com/user-attachments/assets/772c26f8-e691-4229-9b25-75eba6462247" alt="DIFI_logo" width="150">
 </p>
 
 > **Note:** The current scope of this repository focuses strictly on the **Transmit (TX) data path**
