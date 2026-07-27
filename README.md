@@ -131,6 +131,9 @@ Converts raw IQ sample streams into structured VITA 49.2 compliant packets. The 
 * **Stream Arbiter:** Multiplexes data packets and periodic context packets based on priority schemes, arbitrating access to the network transmission channel.
 * **UDP/IP Wrapper:** Appends standard Ethernet MAC headers, IPv4 headers, and UDP transport layer headers (destination/source ports) to the packet payloads, outputting a wide AXI-Stream data bus ready for MAC insertion.
 
+E. Intellectual Property (IP) Licensing
+10G/25G Ethernet Subsystem License: The 10G Ethernet pipeline relies on the AMD/Xilinx Switching Ethernet Subsystem (PG292). During development and testing on the iW-RainboW-G30M platform, the core is utilized under a Full System Hardware Evaluation License, which enables complete Vivado synthesis, simulation, and on-board bitstream generation.
+
 ---
 
 ## 3. Processing System (PS) & Software Control
@@ -151,7 +154,49 @@ The PL custom IP registers are mapped into the PS memory space starting at base 
 
 ---
 
-## 4. Step-by-Step Implementation Guide (Vivado Flow)
+## 4. Hardware Bring-Up, PetaLinux Generation & Boot Process
+Before executing the control software, the target board requires hardware evaluation, custom Linux image generation, and a structured SD card boot sequence:
+
+### A. PetaLinux Project Configuration & Build
+1. Workspace Initialization: Create a PetaLinux project targeting the Zynq UltraScale+ MPSoC architecture using the hardware description file (.xsa) exported from Vivado:
+
+Bash
+petalinux-create -t project -s <path_to_bsp> --name difi_mpsoc_system
+cd difi_mpsoc_system
+petalinux-config --get-hw-description=<path_to_export_hardware>
+
+2. Device Tree Customization: Configure the device tree (system-user.dtsi) to map memory regions and custom PL IP register spaces (base address 0xB0000000).
+
+3. Compilation: Build the complete boot artifacts (including U-Boot, ARM Trusted Firmware, PMU firmware, and the Linux kernel):
+
+Bash
+petalinux-build
+### B. SD Card Partitioning & Population
+To enable standalone Linux execution on the iW-RainboW-G30M board:
+
+1. BOOT Partition (FAT32): Stores primary bootloader files, device tree, and kernel binary. Populate with:
+
+* BOOT.BIN (packaged FSBL, PMU firmware, ATF, U-Boot, and the bitstream).
+
+* image.ub (combined Linux kernel, device tree, and initramfs).
+
+* boot.scr (U-Boot boot script).
+
+2. RootFS Partition (EXT4): Extract the root file system archive for user-space operations:
+
+Bash
+sudo tar -xaf rootfs.tar.gz -C /media/user/ROOTFS_PARTITION/
+
+### C. Board Execution Sequence
+1. Boot Mode: Configure the board's DIP switches to SD Card Boot mode.
+
+2.Serial Terminal: Connect the board's UART interface to the host PC and launch a terminal emulator (e.g., minicom or PuTTY) at 115200 baud.
+
+3.Power-On & Access: Power on the board to initiate U-Boot and the PetaLinux kernel boot sequence. Once the login prompt appears, access the system shell to begin interacting with the memory-mapped hardware.
+
+---
+
+## 5. Step-by-Step Implementation Guide (Vivado Flow)
 
 ### Step 1: Block Design Generation
 1. Launch **Vivado** and open the target project targeting the Zynq UltraScale+ MPSoC device.
@@ -178,7 +223,7 @@ Export the hardware description (.xsa) including the bitstream to PetaLinux.
 
 ---
 
-## 5. Step-by-Step Execution & Verification
+## 6. Step-by-Step Execution & Verification
 
 ### Step 1: Board Booting & Register Initialization
 Power on the iW-RainboW-G30M evaluation board and establish a serial terminal connection (PuTTY / minicom) to the PetaLinux prompt. Use devmem to initialize and unlock the hardware pipeline:
@@ -210,6 +255,8 @@ Observe incoming VITA 49.2 packets streaming continuously at line rate with zero
 Feed the captured raw packet stream into a custom GNU Radio flowgraph.
 
 Demaps the VITA 49 frame headers, extracts the 16-bit IQ samples, and feeds them into a QT GUI Time Sink and Frequency Sink to visually verify the reconstructed baseband tones.
+
+---
 
 ## Authors & Contributors
 
