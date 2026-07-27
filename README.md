@@ -211,7 +211,7 @@ Feed the captured raw packet stream into a custom GNU Radio flowgraph.
 
 Demaps the VITA 49 frame headers, extracts the 16-bit IQ samples, and feeds them into a QT GUI Time Sink and Frequency Sink to visually verify the reconstructed baseband tones.
 
-## 6. Authors & Contributors
+## Authors & Contributors
 
 Students: Matan Moshe and Daniel Burstein
 
