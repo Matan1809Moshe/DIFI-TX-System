@@ -209,17 +209,17 @@ Ensure physical constraints for the 10G SFP+ interface transceiver pins, differe
 tcl
 
 #### Example constraint snippet for high-speed serial transceiver reference clock
-set_property PACKAGE_PIN AB6 [get_names {gt_refclk_10g_p}]
-set_property PACKAGE_PIN AB5 [get_names {gt_refclk_10g_n}]
+set_property PACKAGE_PIN F9 [get_ports {gt_refclk_10g_n}]
+set_property PACKAGE_PIN F10 [get_ports {gt_refclk_10g_p}]
 
 ### Step 3: Synthesis and Bitstream Export
-Generate the HDL wrapper for the block design.
+* Generate the HDL wrapper for the block design.
 
-Launch Synthesis and Implementation.
+* Launch Synthesis and Implementation.
 
-Upon successful place-and-route closure, click Generate Bitstream.
+* Upon successful place-and-route closure, click Generate Bitstream.
 
-Export the hardware description (.xsa) including the bitstream to PetaLinux.
+* Export the hardware description (.xsa) including the bitstream to PetaLinux.
 
 ---
 
@@ -265,6 +265,3 @@ Students: Matan Moshe and Daniel Burstein
 Project Supervisor: Baruch Kagan (CTO, Ayecka Communication Systems LTD)
 
 Institution: Tel Aviv University | Faculty of Engineering (Project ID: 3324)
-Supervisor: Baruch Kagan (CTO, Ayecka Communication Systems LTD)
-
-Institution: Tel Aviv University, Iby and Aladar Fleischman Faculty of Engineering
