@@ -18,21 +18,9 @@ This repository contains the design, implementation, and documentation for a hig
 
 The primary objective is to develop a robust hardware-software co-design architecture capable of encapsulating digitized analog signals (IQ format samples) into standard IP network packets. This facilitates the transition of satellite ground stations from traditional analog RF infrastructure to digital, Ethernet-based networks, effectively mitigating the industry problem of "vendor lock-in."
 
----
-
-## System Architecture & Signal Flow
-The system is deployed on a **Xilinx Zynq UltraScale+ MPSoC** platform (utilizing the iW-RainboW-G30M development board) and is divided into two main domains:
-
-1. **Processing System (PS):** 
-   - Runs an embedded Linux operating system (PetaLinux).
-   - Manages the network stack, system initialization, and high-level configuration of transmission parameters via memory-mapped **AXI4-Lite** registers.
-
-2. **Programmable Logic (PL - Hardware Data Path):** 
-   - **DDS Compiler:** Generates synthetic digital baseband IQ samples at 100 MHz.
-   - **Asynchronous FIFO:** Manages Clock Domain Crossing (CDC) between the 100 MHz sample clock and the 156 MHz network streaming clock.
-   - **Packetizers:** Dedicated logic blocks constructing VITA 49.2 / DIFI compliant headers (Data, Context, and Version packets) with precise timestamping.
-   - **Stream Arbiter & UDP Wrapper:** Multiplexes concurrent streams, converts bus widths, and encapsulates packets within standard UDP/IP wrappers.
-   - **Ethernet Subsystem:** Transmits the data stream at line rate via a 10G SFP+ physical interface.
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f0a4382d-2c07-4bd7-90d9-27ea4dfc9428" alt="Overall_hardware-software_co-design_architecture" width="700">
+</p>
 
 ---
 
@@ -40,15 +28,42 @@ The system is deployed on a **Xilinx Zynq UltraScale+ MPSoC** platform (utilizin
 
 ## 1. System Architecture & Hardware-Software Co-Design
 
-The system is deployed on the **iW-RainboW-G30M** evaluation platform featuring a **Xilinx Zynq UltraScale+ MPSoC** (Processing System + Programmable Logic).
+The system is deployed on a **Xilinx Zynq UltraScale+ MPSoC** platform (utilizing the iW-RainboW-G30M development board) and is divided into two main domains:
 
+1. **Processing System (PS):** 
+   - Runs an embedded Linux operating system (PetaLinux).
+   - Manages the network stack, system initialization, and high-level configuration of transmission         parameters via memory-mapped **AXI4-Lite** registers.
+
+2. **Programmable Logic (PL - Hardware Data Path):** 
+* **DDS Compiler:** Generates synthetic digital baseband quadrature (IQ) samples at a 100 MHz clock
+  domain.
+
+* **Asynchronous FIFO:** Manages Clock Domain Crossing (CDC) from the 100 MHz DDS domain to the 156.25
+  MHz high-speed network streaming domain.
+
+* **Packetizers:** Dedicated logic blocks constructing VITA 49.2 / DIFI compliant headers across three
+  parallel pipelines: Data Packets, Context Packets, and Version Packets, synchronized via a central
+  Timestamp Counter.
+
+* **Sync Data FIFO & Stream Arbiter:** Buffers and multiplexes data streams and periodic metadata
+  packets based on priority schemes.
+
+* **Bus Width Converter:** Translates the internal data stream width (e.g., 32-bit to 64-bit) to match
+  the MAC layer specifications.
+
+* **UDP Broadcast Wrapper:** Appends standard network encapsulation headers (UDP/IP/MAC) to the packet
+  payloads.
+
+* **Ethernet Subsystem:** Transmits the data stream at line rate via a 10G SFP+ physical interface to
+  the Receiver PC.
+  
 ```
        +---------------------------+
        |  Zynq UltraScale+ MPSoC   |
        +---------------------------+
          |                       |
  100 MHz |                       | 156 MHz (MAC)
-         v                       v
+         v                       v צ
    +-----------+            +-------------------+
    |    DDS    |            | Timestamp Counter |
    |  Compiler |            +-------------------+
