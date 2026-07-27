@@ -176,21 +176,22 @@ Export the hardware description (.xsa) including the bitstream to PetaLinux.
 ---
 
 ## 5. Step-by-Step Execution & Verification
-Step 1: Board Booting & Register Initialization
+
+### Step 1: Board Booting & Register Initialization
 Power on the iW-RainboW-G30M evaluation board and establish a serial terminal connection (PuTTY / minicom) to the PetaLinux prompt. Use devmem to initialize and unlock the hardware pipeline:
 
 Bash
-# A. Soft reset and enable DIFI TX core
+#### A. Soft reset and enable DIFI TX core
 devmem 0xB0000000 32 0x00000001
 
-# B. Configure packet transfer parameters (e.g., payload size)
+#### B. Configure packet transfer parameters (e.g., payload size)
 devmem 0xB0000004 32 0x00000400
 
-# C. Set destination UDP port and IP register mappings
+#### C. Set destination UDP port and IP register mappings
 devmem 0xB000000C 32 0xC0A8010A    # Target IP: 192.168.1.10
 devmem 0xB0000010 32 0x70A070A0    # Port configuration
 
-# D. Verify system readiness via status register readback
+#### D. Verify system readiness via status register readback
 devmem 0xB0000024 32
 
 ### Step 2: Live Network Capture (Wireshark)
