@@ -37,33 +37,33 @@ The system is deployed on a **Xilinx Zynq UltraScale+ MPSoC** platform (utilizin
 The system is deployed on the **iW-RainboW-G30M** evaluation platform featuring a **Xilinx Zynq UltraScale+ MPSoC** (Processing System + Programmable Logic).
 
 ```
-     +---------------------------+
-     |  Zynq UltraScale+ MPSoC   |
-     +---------------------------+
-         |                     |
- 100 MHz |                     | 156 MHz (MAC)
-         v                     v
-   +-----------+           +-------------------+
-   |    DDS    |           | Timestamp Counter |
-   |  Compiler |           +-------------------+
-   +-----------+           /            |       \
-         |                /             |        \
-         v               v              v         v
-   +-----------+     +-------+      +-------+ +-------+
-   |   ASYNC   |     | Data  |      |Context| |Version|
-   |   FIFO    | --> |Packet.|      |Packet.| |Packet.|
-   +-----------+     +-------+      +-------+ +-------+
-                        |               |         |
-                        v               v         v
-                 +-----------+     +-----------------------+
-  156 MHz (MAC)  | Sync Data |     |     Stream Arbiter    |
-  ------------>  |   FIFO    | --> |                       |
+      +---------------------------+
+      |  Zynq UltraScale+ MPSoC   |
+      +---------------------------+
+        |                       |
+100 MHz |                       | 156 MHz (MAC)
+        v                       v
+   +-----------+            +-------------------+
+   |    DDS    |            | Timestamp Counter |
+   |  Compiler |            +-------------------+
+   +-----------+           /           |         \
+         |                /            |          \
+         v               v             v           v
+   +-----------+     +-------+     +-------+   +-------+
+   |   ASYNC   |     | Data  |     |Context|   |Version|
+   |   FIFO    | --> |Packet.|     |Packet.|   |Packet.|
+   +-----------+     +-------+     +-------+   +-------+
+         ^              |              |           |
+         |              v              v           v
+         |       +-----------+     +-----------------------+
+  156 MHz (MAC)  | Sync Data |     |         Stream        |
+  ------------>  |   FIFO    | --> |         Arbiter       |
                  +-----------+     +-----------------------+
                                                 | 32-bit
                                                 v
                                    +-----------------------+
                                    |  Bus Width Converter  |
-                                   |      (32-to-64 bit)   |
+                                   |     (32-to-64 bit)    |
                                    +-----------------------+
                                                | 64-bit
                                                v
