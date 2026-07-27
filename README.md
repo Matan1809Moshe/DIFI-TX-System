@@ -36,8 +36,8 @@ The system is deployed on a **Xilinx Zynq UltraScale+ MPSoC** platform (utilizin
 
 The system is deployed on the **iW-RainboW-G30M** evaluation platform featuring a **Xilinx Zynq UltraScale+ MPSoC** (Processing System + Programmable Logic).
 
-```text
-+---------------------------+
+```
+                                  +---------------------------+
                                   |  Zynq UltraScale+ MPSoC   |
                                   +---------------------------+
                                      |                     |
