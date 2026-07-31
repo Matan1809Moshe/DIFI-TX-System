@@ -10,7 +10,9 @@
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/fd20ac97-91b3-467b-b187-27039ead6434" alt="TAU_logo" width="400">
+  <img src="https://github.com/user-attachments/assets/fd20ac97-91b3-467b-b187-27039ead6434" alt="TAU_logo" width="300">
+  &nbsp;&nbsp;
+  <img src="https://github.com/user-attachments/assets/adb69a54-13eb-4bd9-a1d8-16b43517ce51" alt="Ayeca_logo" width="300">
 </p>
 
 > **Note:** The current scope of this repository focuses strictly on the **Transmit (TX) data path**
