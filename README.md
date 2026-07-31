@@ -34,73 +34,71 @@ The system is deployed on a **Xilinx Zynq UltraScale+ MPSoC** platform (utilizin
 
 ### Hardware Data Path (PL)
 ```
-       +---------------------------+
-       |  Zynq UltraScale+ MPSoC   |
-       +---------------------------+
-         |                       |
- 100 MHz |                       | 156 MHz (MAC)
-         v                       v צ
-   +-----------+            +-------------------+
-   |    DDS    |            | Timestamp Counter |
-   |  Compiler |            +-------------------+
-   +-----------+           /           |         \
-         |                /            |          \
-         v               v             v           v
-   +-----------+     +-------+     +-------+   +-------+
-   |   ASYNC   |     | Data  |     |Context|   |Version|
-   |   FIFO    | --> |Packet.|     |Packet.|   |Packet.|
-   +-----------+     +-------+     +-------+   +-------+
-         ^              |              |           |
-         |              v              v           v
-         |       +-----------+     +-----------------------+
-  156 MHz (MAC)  | Sync Data |     |         Stream        |
-  ------------>  |   FIFO    | --> |         Arbiter       |
-                 +-----------+     +-----------------------+
-                                                | 32-bit
-                                                v
-                                   +-----------------------+
-                                   |  Bus Width Converter  |
-                                   |     (32-to-64 bit)    |
-                                   +-----------------------+
-                                               | 64-bit
-                                               v
-                                   +-----------------------+
-                                   | UDP Broadcast Wrapper |
-                                   +-----------------------+
-                                               | 64-bit
-                                               v
-                                   +-----------------------+
-                                   |  Ethernet Subsystem   |
-                                   |   (10G/25G MAC+PCS)   |
-                                   +-----------------------+
-                                               | SFP+ (10G)
-                                               v
-                                   +-----------------------+
-                                   |      Receiver PC      |
-                                   +-----------------------+
+                  +---------------------------+
+                  |  Zynq UltraScale+ MPSoC   |
+                  +---------------------------+
+                    |                       |
+            100 MHz |                       | 156 MHz (MAC)
+                    v                       v 
+              +-----------+            +-------------------+
+              |    DDS    |            | Timestamp Counter |
+              |  Compiler |            +-------------------+
+              +-----------+           /           |         \
+                    |                /            |          \
+                    v               v             v           v
+              +-----------+     +-------+     +-------+   +-------+
+              |   ASYNC   |     | Data  |     |Context|   |Version|
+              |   FIFO    | --> |Packet.|     |Packet.|   |Packet.|
+              +-----------+     +-------+     +-------+   +-------+
+                    ^              |              |           |
+                    |              v              v           v
+                    |        +----------+     +--------------------+
+             156 MHz (MAC)   |   Sync   |     |       Stream       |
+             ------------>   |   FIFO   | --> |       Arbiter      |
+                             +----------+     +--------------------+
+                                                        | 32-bit
+                                                        v
+                                             +-----------------------+
+                                             |  Bus Width Converter  |
+                                             |     (32-to-64 bit)    |
+                                             +-----------------------+
+                                                        | 64-bit
+                                                        v
+                                             +-----------------------+
+                                             | UDP Broadcast Wrapper |
+                                             +-----------------------+
+                                                        | 64-bit
+                                                        v
+                                             +-----------------------+
+                                             |  Ethernet Subsystem   |
+                                             |   (10G/25G MAC+PCS)   |
+                                             +-----------------------+
+                                                        | SFP+ (10G)
+                                                        v
+                                             +-----------------------+
+                                             |      Receiver PC      |
+                                             +-----------------------+
 ```
 ---
-* **Digital Signal Generation (DDS):** Generates synthetic digital baseband quadrature (IQ) samples. Configured to output 16-bit signed I and Q data streams at a sampling clock of 100 MHz via an AXI-Stream interface.
+* **Digital Signal Generation (DDS):** Xilinx IP configured to generate a complex I/Q sine and cosine outputs with programmable phase increment. In this project it is set to output a 100 kHz tone from the 100 MHz clock. A custom dds_rate_ctrl module gates the DDS clock enable to enforce an adjustable target sample rate.
 
-* **Clock Domain Crossing (CDC) & Async FIFO:** Bridges the asynchronous clock boundary between the internal sample generation domain (100 MHz) and the high-speed Ethernet streaming domain (156.25 MHz). Features built-in almost-full/empty threshold flags to prevent data overflow/underflow.
+* **Clock Domain Crossing (CDC) & Async FIFO:** An IP configured as an asynchronous FIFO. It bridges the 100 MHz PS clock (where the DDS runs) to the needed 156.25 MHz Ethernet MAC clock. Direct crossing between clock domains would cause metastability. The async FIFO uses synchronization internally to transfer data safely at streaming throughput.
 
-* **VITA 49.2 / DIFI Packetizers:** Converts raw IQ sample streams into structured compliant packets across three parallel pipelines:
+* **Data Packetizer:** An RTL Verilog module. Buffers 343 I/Q samples per packet, constructs the 7-word DIFI Data Packet header (Class 0x0000) with stream ID, sequence number, and a timestamp sampled from the Timestamp Counter, and outputs a complete 350-word DIFI packet on AXI-Stream.
 
-**- Data Packets:** Interleaved 16-bit IQ samples alongside a precise 64-bit timestamp.
+* **Context Packetizer:** An RTL Verilog module. Emits a 27-word DIFI Signal Context packet (Class 0x0001) at a configurable periodic rate, carrying signal metadata sample rate, RF center frequency, bandwidth, and reference level. That allows the receiver to interpret the I/Q samples.
 
-**- Context Packets:** Periodically transmits metadata (RF frequency, sample rate, bandwidth, gain control).
+* **Version Packetizer:** An RTL Verilog module. Emits an 11-word DIFI Version Context packet (Class 0x0004) at a configurable (less frequent) rate, carrying the DIFI specification version and firmware build identity. This allows a receiver joining the stream to identify the transmitter.
 
-**- Version Packets:** Conveys firmware version and DIFI specification release compliance.
+* **Sync FIFO:** An IP configured as a single-clock (synchronous) FIFO. It provides buffering between the Data Packetizer output and the Stream Arbiter, absorbing short bursts of backpressure and avoiding stalls in the upstream pipeline.
 
-* **Sync Data FIFO & Stream Arbiter:** Buffers and multiplexes data streams and periodic metadata
-  packets based on priority schemes.
+* **Priority Arbiter:** An RTL Verilog module. Merges the three concurrent packet streams (Data, Context, Version) onto a single 32-bit AXI-Stream bus with fixed priority: Version > Context > Data. Priority arbitration ensures that the low-rate metadata packets are never starved by the continuous Data stream.
 
-* **UDP Broadcast Wrapper:** Appends standard network encapsulation headers (UDP/IP/MAC) to the packet
-  payloads.
+* **Bus Width Converter:** Data Width Converter IP, configured 32-bit to 64-bit. The Xilinx 10G/25G Ethernet Subsystem requires a 64-bit AXI-Stream input to sustain 10 Gbit/s line rate at 156.25 MHz (156.25 MHz × 64 bits ≈ 10 Gbit/s). The upstream pipeline runs at 32 bits to match the DIFI word size, so a width conversion is needed.
 
-* * **Bus Width Converter:** Translates the internal data stream width (e.g., 32-bit to 64-bit) to match the MAC layer specifications.
+* **UDP Broadcast Wrapper:** An RTL module. Prepends a 42-byte Ethernet/IPv4/UDP header to each DIFI packet, computes the IPv4 header checksum combinationally in hardware, and handles the misalignment between the 42-byte header and the 64-bit datapath using a packing mechanism that keeps every output word fully populated.
 
-* **10G/25G Ethernet Subsystem:** Transmits the data stream at line rate via a 10G SFP+ physical interface to the Receiver PC.
+* **10G/25G Ethernet Subsystem (MAC + PCS):** Xilinx 10G/25G Ethernet Subsystem IP. Implements the Ethernet Media Access Control (MAC) layer and the Physical Coding Sublayer (PCS), converting the AXI-Stream frames from the UDP Broadcast Wrapper into 10 Gbit/s serial data. Its output drives GTH gigabit transceivers, which are connected to the board's SFP+ cage for optical transmission to the Receiver PC.
 
 ---
 
@@ -161,7 +159,8 @@ petalinux-build
 
 ## 4. Execution & Verification
 ### Step 1: SD Card Boot Preparation
-1. BOOT Partition (FAT32): Stores primary bootloader files, device tree, and kernel binary. Populate with:
+1. BOOT Partition (FAT32): Stores primary bootloader files, device tree, and kernel binary. Populate
+   with:
 
 * BOOT.BIN (packaged FSBL, PMU firmware, ATF, U-Boot, and the bitstream).
 * image.ub (combined Linux kernel, device tree, and initramfs).
@@ -200,4 +199,4 @@ devmem 0xB0000024 32
 
 * **Students:** Matan Moshe and Daniel Burstein
 * **Project Supervisor:** Baruch Kagan (CTO, Ayecka Communication Systems LTD)
-* **Institution:** Tel Aviv University | Faculty of Engineering (Project ID: 3324)
+* **Institution:** Tel Aviv University | Faculty of Engineering | Project ID: 3324
