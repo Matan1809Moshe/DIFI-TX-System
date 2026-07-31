@@ -152,7 +152,7 @@ Create and build the PetaLinux project using the exported .xsa:
 petalinux-create -t project -s <path_to_bsp> --name difi_mpsoc_system
 cd difi_mpsoc_system
 petalinux-config --get-hw-description=<path_to_export_hardware>
-# Map memory regions in system-user.dtsi, then compile:
+#### Map memory regions in system-user.dtsi, then compile:
 petalinux-build
 
 ---
