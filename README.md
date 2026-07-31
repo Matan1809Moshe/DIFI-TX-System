@@ -145,7 +145,7 @@ set_property PACKAGE_PIN F10 [get_ports {gt_refclk_10g_p}]
 
 * Export the hardware description (.xsa) including the bitstream to PetaLinux.
 
-### step 4: PetaLinux Build (OS Generation)
+### Step 4: PetaLinux Build (OS Generation)
 Create and build the PetaLinux project using the exported .xsa:
 
 **Bash**
